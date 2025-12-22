@@ -54,6 +54,10 @@ const QuizHostPage = () => {
             technology: q.technology || '', // Default to empty string if missing
             skill: q.skill || '', // Default to empty string if missing
         }));
+console.log('QUIZ DATA FROM SUPABASE', {
+  qData,
+  qsData
+});
 
         setQuiz({
             id: qData.quiz_id,
