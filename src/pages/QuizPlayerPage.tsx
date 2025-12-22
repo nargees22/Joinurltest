@@ -31,13 +31,14 @@ const QuizPlayerPage = () => {
         if (!quizId) return;
         const { data } = await supabase.from('quiz_players').select('*').eq('quiz_id', quizId);
         if (data) {
-            const mapped = data.map(p => ({
+            const mapped = data.map((p, index) => ({
                 id: p.player_id,
                 name: p.player_name,
                 avatar: p.avatar,
                 score: p.score,
                 clan: p.clan,
-                answers: []
+                answers: [],
+                key: p.player_id || `player-${index}` // Ensure unique key
             }));
             setAllPlayers(mapped as any);
             const current = mapped.find(p => p.id === playerId);
@@ -57,7 +58,7 @@ const QuizPlayerPage = () => {
             const { data: qsData } = await supabase.from('quiz_questions').select('*').eq('quiz_id', quizId).order('question_order', { ascending: true });
             
             if (qData) {
-                const mappedQuestions: Question[] = (qsData || []).map((q: any) => ({
+                const mappedQuestions: Question[] = (qsData || []).map((q, index) => ({
                     id: q.pk_id.toString(),
                     text: q.question_text,
                     options: [q.option_1, q.option_2, q.option_3, q.option_4].filter(Boolean),
@@ -65,7 +66,8 @@ const QuizPlayerPage = () => {
                     timeLimit: q.time_limit,
                     type: q.type as QuestionType,
                     technology: q.technology,
-                    skill: q.skill
+                    skill: q.skill,
+                    key: q.pk_id || `question-${index}` // Ensure unique key
                 }));
 
                 setQuiz({
