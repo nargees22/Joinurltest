@@ -115,8 +115,8 @@ const JoinQuizPage = () => {
         localStorage.setItem(`quiz-player-${targetQuizId}`, playerId);
         //navigate(`/player-lobby/${targetQuizId}`);
        //navigate(`/#/player-lobby/${targetQuizId}`);
-     //  navigate(`/lobby/${quizId}`);
-     navigate(`/#/lobby/${quizId}`);
+      navigate(`/lobby/${quizId}`);
+     //navigate(`/#/lobby/${quizId}`);
 
 
       // navigate(`/player-lobby/${targetQuizId}`);

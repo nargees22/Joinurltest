@@ -770,8 +770,8 @@ setIsCustomQuestionValid(false);
 // //navigate(`/lobby/${quizId}`);
 
 
-//navigate(`/lobby/${quizId}`);
-navigate(`/#/lobby/${quizId}`);
+navigate(`/lobby/${quizId}`);
+
 
 
 };
