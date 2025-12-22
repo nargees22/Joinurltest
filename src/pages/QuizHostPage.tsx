@@ -98,13 +98,33 @@ const QuizHostPage = () => {
         return () => { supabase.removeChannel(channel); };
     }, [quizId]);
 
+    // const updateGameState = async (newState: GameState) => {
+    //     const updateData: any = { game_state: newState };
+    //     if (newState === GameState.QUESTION_INTRO) {
+    //         updateData.current_question_index = (quiz?.currentQuestionIndex || 0) + 1;
+    //     }
+    //     await supabase.from('quiz_master_structure').update(updateData).eq('quiz_id', quizId);
+    // };
     const updateGameState = async (newState: GameState) => {
-        const updateData: any = { game_state: newState };
-        if (newState === GameState.QUESTION_INTRO) {
-            updateData.current_question_index = (quiz?.currentQuestionIndex || 0) + 1;
-        }
-        await supabase.from('quiz_master_structure').update(updateData).eq('quiz_id', quizId);
-    };
+    if (!quizId || !quiz) return;
+
+    const updateData: any = { game_state: newState };
+
+    // ✅ ONLY increment when moving AFTER leaderboard
+    if (
+        newState === GameState.QUESTION_INTRO &&
+        quiz.gameState === GameState.LEADERBOARD
+    ) {
+        updateData.current_question_index =
+            (quiz.currentQuestionIndex ?? 0) + 1;
+    }
+
+    await supabase
+        .from('quiz_master_structure')
+        .update(updateData)
+        .eq('quiz_id', quizId);
+};
+
 
     // -----------------------------
     // GUARDS (CRITICAL)
@@ -144,13 +164,36 @@ const QuizHostPage = () => {
             case GameState.LOBBY:
                 return <div className="text-xl text-slate-500">Waiting to start quiz…</div>;
 
-            case GameState.QUESTION_INTRO:
-                return (
-                    <div className="text-center">
-                        <h1 className="text-3xl font-bold">{question.text}</h1>
-                        <p className="mt-4 text-slate-500">Get ready…</p>
-                    </div>
-                );
+            // case GameState.QUESTION_INTRO:
+            //     return (
+            //         <div className="flex flex-col items-center animate-fade-in w-full max-w-4xl px-4">
+            //             <div className="flex justify-between items-center w-full mb-6">
+            //                 <div className="bg-white/80 backdrop-blur-sm shadow-lg rounded-full px-6 py-3 text-2xl font-bold text-slate-800">
+            //                     <span>{totalAnswers} / {players.length} Answered</span>
+            //                 </div>
+            //                 <TimerCircle key={question.id} duration={question.timeLimit} start={true} />
+            //             </div>
+            //             <div className="w-full bg-white rounded-2xl shadow-2xl overflow-hidden">
+            //                 <div className="bg-slate-800 p-8 text-white text-center">
+            //                     <h1 className="text-3xl font-bold">{question.text}</h1>
+            //                 </div>
+            //                 <div className="p-8 text-center text-slate-500 text-xl animate-pulse">
+            //                     Players are locking in their answers...
+            //                 </div>
+            //             </div>
+            //         </div>
+            //     );
+case GameState.QUESTION_INTRO:
+    if (!question) {
+        return <PageLoader message="Loading next question..." />;
+    }
+
+    return (
+        <div className="text-center">
+            <h1 className="text-3xl font-bold">{question.text}</h1>
+            <p className="mt-4 text-slate-500">Get ready…</p>
+        </div>
+    );
 
             case GameState.QUESTION_ACTIVE:
                 return (

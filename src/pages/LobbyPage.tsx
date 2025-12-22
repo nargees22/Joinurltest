@@ -10,7 +10,7 @@ import { CopyIcon } from '../icons/CopyIcon';
 import { supabase } from '../service/supabase';
 
 const LobbyPage = () => {
-  /* -------------------- HOOKS (MUST COME FIRST) -------------------- */
+  /* -------------------- HOOKS -------------------- */
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
 
@@ -81,7 +81,6 @@ const LobbyPage = () => {
     fetchQuiz();
     fetchPlayers();
 
-    /* 🔴 REAL-TIME SUBSCRIPTION */
     const channel = supabase
       .channel(`lobby-${quizId}`)
       .on(
@@ -101,7 +100,7 @@ const LobbyPage = () => {
     };
   }, [quizId, navigate]);
 
-  /* -------------------- SAFETY RETURNS (AFTER HOOKS) -------------------- */
+  /* -------------------- GUARDS -------------------- */
   if (!quizId || quizId.length !== 6) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -116,10 +115,8 @@ const LobbyPage = () => {
     return <PageLoader message="Loading lobby..." />;
   }
 
-  /* -------------------- HELPERS -------------------- */
-  const joinUrl =
-    window.location.href.split('#')[0].replace(/^blob:/, '') +
-    `#/join/${quiz.id}`;
+  /* -------------------- JOIN URL (HASH ROUTER SAFE) -------------------- */
+  const joinUrl = window.location.origin + `/#/join/${quiz.id}`;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(joinUrl);
@@ -157,7 +154,6 @@ const LobbyPage = () => {
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* LEFT */}
           <div>
             <h2 className="text-2xl font-bold mb-4">Scan to Join!</h2>
             <QRCodeDisplay text={joinUrl} />
@@ -174,7 +170,6 @@ const LobbyPage = () => {
             </button>
           </div>
 
-          {/* RIGHT */}
           <div>
             <h2 className="text-2xl font-bold mb-4">
               Players ({players.length})
