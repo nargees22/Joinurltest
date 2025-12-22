@@ -695,6 +695,8 @@ setIsCustomQuestionValid(false);
     };
 
     const handleStartLiveQuiz = async () => {
+        localStorage.setItem('quiz_role', 'host');
+
   if (!finalTitle || questions.length < 1 || questions.length > 10) {
     alert("A title and between 1 to 10 questions are required.");
     return;
@@ -768,7 +770,9 @@ setIsCustomQuestionValid(false);
 // //navigate(`/lobby/${quizId}`);
 
 
-navigate(`/lobby/${quizId}`);
+//navigate(`/lobby/${quizId}`);
+navigate(`/#/lobby/${quizId}`);
+
 
 };
 

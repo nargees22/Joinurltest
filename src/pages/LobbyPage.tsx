@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { db } from '../../firebase';
+//import { db } from '../../firebase';
 import type { Quiz, Player } from '../../types.ts';
 import { GameState, Clan } from '../../types.ts';
 import { PageLoader } from '../components/PageLoader';
@@ -144,11 +144,11 @@ if (!quizId || quizId.length !== 6) {
   .update({ game_state: nextState })
   .eq('quiz_id', quizId);
 
-if (!error) {
-  navigate(`/#/quiz/host/${quizId}`);
-} else {
-  console.error("Error updating game state:", error);
-}
+// if (!error) {
+//   navigate(`/#/quiz/host/${quizId}`);
+// } else {
+//   console.error("Error updating game state:", error);
+// }
 
         if (!error) {
             navigate(`/quiz/host/${quizId}`);
