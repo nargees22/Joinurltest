@@ -43,6 +43,11 @@ const QuizHostPage = () => {
             .eq('quiz_id', quizId);
 
         if (!qData || !qsData) return;
+        console.log('QUIZ DATA FROM SUPABASE', {
+  qData,
+  qsData,
+  pData
+});
 
         const mappedQuestions: Question[] = qsData.map((q: any) => ({
             id: String(q.pk_id),
@@ -130,6 +135,7 @@ const QuizHostPage = () => {
     // GUARDS (CRITICAL)
     // -----------------------------
     if (!quiz) return <PageLoader message="Loading host view..." />;
+    console.log('QUIZ STATE', quiz);
 
     const question = quiz.questions?.[quiz.currentQuestionIndex];
 
