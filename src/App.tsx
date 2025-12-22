@@ -17,7 +17,7 @@ import PerformanceReportPage from './pages/PerformanceReportPage.tsx';
 
 const App = () => {
   return (
-    <HashRouter>
+   
       <div className="min-h-screen flex flex-col relative">
         <div className="background-shapes"></div>
         <Header />
@@ -38,7 +38,7 @@ const App = () => {
         </main>
         <Footer />
       </div>
-    </HashRouter>
+
   );
 };
 
