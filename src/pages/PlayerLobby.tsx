@@ -9,8 +9,6 @@ import { FiftyFiftyIcon } from '../icons/FiftyFiftyIcon';
 import { PointDoublerIcon } from '../icons/PointDoublerIcon';
 import { supabase } from '../service/supabase';
 
-
-
 const PlayerLobby = () => {
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
@@ -150,6 +148,22 @@ console.log('PlayerLobby render', { quizId, playerId });
           <PointDoublerIcon />
           <span>Point Doubler</span>
         </div>
+      </div>
+
+      <div className="mt-6">
+        {players.map((player, index) => (
+          <div key={player.id || `player-${index}`}>
+            {/* Render player details */}
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-6">
+        {Object.values(Clan).map((clan, index) => (
+          <div key={clan || `clan-${index}`}>
+            {/* Render clan details */}
+          </div>
+        ))}
       </div>
     </div>
   );
