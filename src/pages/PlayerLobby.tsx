@@ -63,9 +63,13 @@ console.log('PlayerLobby render', { quizId, playerId });
         },
       } as Quiz);
 
-      if (data.game_state !== GameState.LOBBY) {
-        navigate(`/quiz/player/${quizId}`);
-      }
+      // if (data.game_state !== GameState.LOBBY) {
+      //   navigate(`/quiz/player/${quizId}`);
+      // }
+      if (data.game_state !== GameState.LOBBY && playerId) {
+  navigate(`/quiz/player/${quizId}/${playerId}`);
+}
+
     };
 
     fetchQuiz();
@@ -89,12 +93,12 @@ console.log('PlayerLobby render', { quizId, playerId });
     };
   }, [quizId, playerId, navigate]);
 
-  // Redirect players to QuizPlayerPage.tsx when the game state changes
-  useEffect(() => {
-    if (quiz?.gameState === GameState.QUESTION_INTRO) {
-      navigate(`/quiz/player/${quizId}`);
-    }
-  }, [quiz?.gameState, quizId, navigate]);
+  // // Redirect players to QuizPlayerPage.tsx when the game state changes
+  // useEffect(() => {
+  //   if (quiz?.gameState === GameState.QUESTION_INTRO) {
+  //     navigate(`/quiz/player/${quizId}`);
+  //   }
+  // }, [quiz?.gameState, quizId, navigate]);
 
   // 🔁 Realtime players
   useEffect(() => {

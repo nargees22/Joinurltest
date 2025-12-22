@@ -20,7 +20,11 @@ const LobbyPage = () => {
 
   /* -------------------- EFFECT -------------------- */
   useEffect(() => {
-    if (!quizId) return;
+   // if (!quizId) return;
+   if (!quizId || quizId.length !== 6) {
+  navigate('/');
+  return;
+}
 
     const fetchQuiz = async () => {
       const { data, error } = await supabase
@@ -101,15 +105,15 @@ const LobbyPage = () => {
   }, [quizId, navigate]);
 
   /* -------------------- GUARDS -------------------- */
-  if (!quizId || quizId.length !== 6) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-red-500 text-lg font-semibold">
-          Invalid Quiz Code
-        </div>
-      </div>
-    );
-  }
+  // if (!quizId || quizId.length !== 6) {
+  //   return (
+  //     <div className="flex items-center justify-center h-screen">
+  //       <div className="text-red-500 text-lg font-semibold">
+  //         Invalid Quiz Code
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   if (!quiz) {
     return <PageLoader message="Loading lobby..." />;
