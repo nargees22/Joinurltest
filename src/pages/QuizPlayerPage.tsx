@@ -201,7 +201,7 @@ const QuizPlayerPage = () => {
                             quiz={quiz}
                             highlightPlayerId={playerId}
                             animate={true}
-                            strategicTip={strategicTip}
+                            strategicTip={strategicTip}            
                         />
                     </div>
                 );
