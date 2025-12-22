@@ -16,6 +16,10 @@ const QuizHostPage = () => {
     const [quiz, setQuiz] = useState<Quiz | null>(null);
     const [players, setPlayers] = useState<Player[]>([]);
     const [currentQuestionAnswers, setCurrentQuestionAnswers] = useState<any[]>([]);
+    if (!quizId) {
+  return <PageLoader message="Invalid quiz id" />;
+}
+
 
     // Add detailed comments, guards, and improved logic for game state updates and rendering
 
@@ -113,6 +117,12 @@ console.log('QUIZ DATA FROM SUPABASE', {
     if (!quizId || !quiz) return;
 
     const updateData: any = { game_state: newState };
+     if (
+    newState === GameState.QUESTION_INTRO &&
+    quiz.gameState === GameState.LOBBY
+  ) {
+    updateData.current_question_index = 0;
+  }
 
     // ✅ ONLY increment when moving AFTER leaderboard
     if (
@@ -135,7 +145,15 @@ console.log('QUIZ DATA FROM SUPABASE', {
     // -----------------------------
     if (!quiz) return <PageLoader message="Loading host view..." />;
 
-    const question = quiz.questions?.[quiz.currentQuestionIndex];
+   // const question = quiz.questions?.[quiz.currentQuestionIndex];
+   const question =
+  quiz.questions &&
+  typeof quiz.currentQuestionIndex === 'number' &&
+  quiz.currentQuestionIndex >= 0 &&
+  quiz.currentQuestionIndex < quiz.questions.length
+    ? quiz.questions[quiz.currentQuestionIndex]
+    : null;
+
 
     if (
         quiz.gameState !== GameState.LOBBY &&
@@ -151,14 +169,23 @@ console.log('QUIZ DATA FROM SUPABASE', {
     // -----------------------------
     // SAFE useMemo
     // -----------------------------
+    // const answerCounts = useMemo(() => {
+    //     if (!question) return [];
+    //     const counts = new Array(question.options.length).fill(0);
+    //     currentQuestionAnswers.forEach(a => {
+    //         if (typeof a.answer === 'number') counts[a.answer]++;
+    //     });
+    //     return counts;
+    // }, [currentQuestionAnswers, question]);
     const answerCounts = useMemo(() => {
-        if (!question) return [];
-        const counts = new Array(question.options.length).fill(0);
-        currentQuestionAnswers.forEach(a => {
-            if (typeof a.answer === 'number') counts[a.answer]++;
-        });
-        return counts;
-    }, [currentQuestionAnswers, question]);
+  if (!question || !question.options) return [];
+  const counts = new Array(question.options.length).fill(0);
+  currentQuestionAnswers.forEach(a => {
+    if (typeof a.answer === 'number') counts[a.answer]++;
+  });
+  return counts;
+}, [currentQuestionAnswers, question]);
+
 
     // -----------------------------
     // RENDER
@@ -194,7 +221,10 @@ case GameState.QUESTION_INTRO:
 
     return (
         <div className="text-center">
-            <h1 className="text-3xl font-bold">{question.text}</h1>
+            {question && (
+  <h1 className="text-3xl font-bold">{question.text}</h1>
+)}
+
             <p className="mt-4 text-slate-500">Get ready…</p>
         </div>
     );
@@ -202,18 +232,33 @@ case GameState.QUESTION_INTRO:
             case GameState.QUESTION_ACTIVE:
                 return (
                     <>
-                        <TimerCircle duration={question.timeLimit} start />
-                        <h1 className="text-2xl mt-6">{question.text}</h1>
+                        {question && (
+  <>
+    <TimerCircle duration={question.timeLimit} start />
+    <h1 className="text-2xl mt-6">{question.text}</h1>
+  </>
+)}
+
                     </>
                 );
 
-            case GameState.QUESTION_RESULT:
-                return (
-                    <SurveyResultsChart
-                        options={question.options}
-                        answerCounts={answerCounts}
-                    />
-                );
+            case GameState.QUESTION_RESULT: {
+  if (!question) {
+    return <PageLoader message="Loading results..." />;
+  }
+
+  if (!Array.isArray(question.options)) {
+    return <PageLoader message="Preparing chart..." />;
+  }
+
+  return (
+    <SurveyResultsChart
+      options={question.options}
+      answerCounts={answerCounts}
+    />
+  );
+}
+
 
             case GameState.LEADERBOARD:
                 return <IntermediateLeaderboard players={players} quiz={quiz} animate />;
