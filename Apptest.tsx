@@ -1,23 +1,20 @@
-
 import React from 'react';
-// Fix: Ensure standard react-router-dom exports are correctly referenced
 import { Routes, Route, Navigate } from 'react-router-dom';
 
-import { Header } from './components/Header.tsx';
-import { Footer } from './components/Footer.tsx';
-import HomePage from './pages/HomePage.tsx';
-import CreateQuizPage from './pages/CreateQuizPage.tsx';
-import JoinQuizPage from './pages/JoinQuizPage.tsx';
-import LobbyPage from './pages/LobbyPage.tsx';
-import PlayerLobby from './pages/PlayerLobby.tsx';
-import QuizHostPage from './pages/QuizHostPage.tsx';
-import QuizPlayerPage from './pages/QuizPlayerPage.tsx';
-import LeaderboardPage from './pages/LeaderboardPage.tsx';
-import PerformanceReportPage from './pages/PerformanceReportPage.tsx';
+import { Header } from './src/components/Header.tsx';
+import { Footer } from './src/components/Footer.tsx';
+import HomePage from './src/pages/HomePage.tsx';
+import CreateQuizPage from './src/pages/CreateQuizPage.tsx';
+import JoinQuizPage from './src/pages/JoinQuizPage.tsx';
+import LobbyPage from './src/pages/LobbyPage.tsx';
+import PlayerLobby from './src/pages/PlayerLobby.tsx';
+import QuizHostPage from './src/pages/QuizHostPage.tsx';
+import QuizPlayerPage from './src/pages/QuizPlayerPage.tsx';
+import LeaderboardPage from './src/pages/LeaderboardPage.tsx';
+import PerformanceReportPage from './src/pages/PerformanceReportPage.tsx';
 
 const App = () => {
   return (
-   
       <div className="min-h-screen flex flex-col relative">
         <div className="background-shapes"></div>
         <Header />
@@ -38,7 +35,6 @@ const App = () => {
         </main>
         <Footer />
       </div>
-
   );
 };
 
