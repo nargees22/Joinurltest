@@ -190,90 +190,139 @@ console.log('QUIZ DATA FROM SUPABASE', {
     // -----------------------------
     // RENDER
     // -----------------------------
-    const renderContent = () => {
-        switch (quiz.gameState) {
-            case GameState.LOBBY:
-                return <div className="text-xl text-slate-500">Waiting to start quiz…</div>;
 
-            // case GameState.QUESTION_INTRO:
-            //     return (
-            //         <div className="flex flex-col items-center animate-fade-in w-full max-w-4xl px-4">
-            //             <div className="flex justify-between items-center w-full mb-6">
-            //                 <div className="bg-white/80 backdrop-blur-sm shadow-lg rounded-full px-6 py-3 text-2xl font-bold text-slate-800">
-            //                     <span>{totalAnswers} / {players.length} Answered</span>
-            //                 </div>
-            //                 <TimerCircle key={question.id} duration={question.timeLimit} start={true} />
-            //             </div>
-            //             <div className="w-full bg-white rounded-2xl shadow-2xl overflow-hidden">
-            //                 <div className="bg-slate-800 p-8 text-white text-center">
-            //                     <h1 className="text-3xl font-bold">{question.text}</h1>
-            //                 </div>
-            //                 <div className="p-8 text-center text-slate-500 text-xl animate-pulse">
-            //                     Players are locking in their answers...
-            //                 </div>
-            //             </div>
-            //         </div>
-            //     );
-case GameState.QUESTION_INTRO:
-    if (!question) {
-        return <PageLoader message="Loading next question..." />;
+const renderContent = () => {
+  if (!quiz || !Array.isArray(quiz.questions)) {
+    return <PageLoader message="Loading quiz..." />;
+  }
+
+  const question = quiz.questions[quiz.currentQuestionIndex];
+
+  switch (quiz.game_state) {
+    case GameState.QUESTION_INTRO:
+    case GameState.QUESTION_ACTIVE: {
+      if (!question) {
+        return <PageLoader message="Loading question..." />;
+      }
+
+      return (
+        <>
+          <TimerCircle duration={question.time_limit ?? 30} start />
+          <h1 className="text-2xl mt-6">{question.question_text}</h1>
+        </>
+      );
     }
 
-    return (
-        <div className="text-center">
-            {question && (
-  <h1 className="text-3xl font-bold">{question.text}</h1>
-)}
+    case GameState.QUESTION_RESULT: {
+      if (!question || !Array.isArray(question.options)) {
+        return <PageLoader message="Preparing results..." />;
+      }
 
-            <p className="mt-4 text-slate-500">Get ready…</p>
-        </div>
-    );
+      return (
+        <SurveyResultsChart
+          options={question.options}
+          answerCounts={answerCounts}
+        />
+      );
+    }
 
-            case GameState.QUESTION_ACTIVE:
-                return (
-                    <>
-                        {question && (
-  <>
-    <TimerCircle duration={question.timeLimit} start />
-    <h1 className="text-2xl mt-6">{question.text}</h1>
-  </>
-)}
+    case GameState.LEADERBOARD:
+      return <IntermediateLeaderboard players={players} quiz={quiz} animate />;
 
-                    </>
-                );
+    case GameState.FINISHED:
+      return <FinalLeaderboard players={players} quiz={quiz} />;
 
-            case GameState.QUESTION_RESULT: {
-  if (!question) {
-    return <PageLoader message="Loading results..." />;
+    default:
+      return <PageLoader message="Loading..." />;
   }
-
-  if (!Array.isArray(question.options)) {
-    return <PageLoader message="Preparing chart..." />;
-  }
-
-  return (
-    <SurveyResultsChart
-      options={question.options}
-      answerCounts={answerCounts}
-    />
-  );
-}
+};
 
 
-            case GameState.LEADERBOARD:
-                return <IntermediateLeaderboard players={players} quiz={quiz} animate />;
 
-            case GameState.FINISHED:
-                return (
-                    <Button onClick={() => navigate(`/report/${quizId}`)}>
-                        View Report
-                    </Button>
-                );
+//     const renderContent = () => {
+//         switch (quiz.gameState) {
+//             case GameState.LOBBY:
+//                 return <div className="text-xl text-slate-500">Waiting to start quiz…</div>;
 
-            default:
-                return null;
-        }
-    };
+//             // case GameState.QUESTION_INTRO:
+//             //     return (
+//             //         <div className="flex flex-col items-center animate-fade-in w-full max-w-4xl px-4">
+//             //             <div className="flex justify-between items-center w-full mb-6">
+//             //                 <div className="bg-white/80 backdrop-blur-sm shadow-lg rounded-full px-6 py-3 text-2xl font-bold text-slate-800">
+//             //                     <span>{totalAnswers} / {players.length} Answered</span>
+//             //                 </div>
+//             //                 <TimerCircle key={question.id} duration={question.timeLimit} start={true} />
+//             //             </div>
+//             //             <div className="w-full bg-white rounded-2xl shadow-2xl overflow-hidden">
+//             //                 <div className="bg-slate-800 p-8 text-white text-center">
+//             //                     <h1 className="text-3xl font-bold">{question.text}</h1>
+//             //                 </div>
+//             //                 <div className="p-8 text-center text-slate-500 text-xl animate-pulse">
+//             //                     Players are locking in their answers...
+//             //                 </div>
+//             //             </div>
+//             //         </div>
+//             //     );
+// case GameState.QUESTION_INTRO:
+//     if (!question) {
+//         return <PageLoader message="Loading next question..." />;
+//     }
+
+//     return (
+//         <div className="text-center">
+//             {question && (
+//   <h1 className="text-3xl font-bold">{question.text}</h1>
+// )}
+
+//             <p className="mt-4 text-slate-500">Get ready…</p>
+//         </div>
+//     );
+
+//             case GameState.QUESTION_ACTIVE:
+//                 return (
+//                     <>
+//                         {question && (
+//   <>
+//     <TimerCircle duration={question.timeLimit} start />
+//     <h1 className="text-2xl mt-6">{question.text}</h1>
+//   </>
+// )}
+
+//                     </>
+//                 );
+
+//             case GameState.QUESTION_RESULT: {
+//   if (!question) {
+//     return <PageLoader message="Loading results..." />;
+//   }
+
+//   if (!Array.isArray(question.options)) {
+//     return <PageLoader message="Preparing chart..." />;
+//   }
+
+//   return (
+//     <SurveyResultsChart
+//       options={question.options}
+//       answerCounts={answerCounts}
+//     />
+//   );
+// }
+
+
+//             case GameState.LEADERBOARD:
+//                 return <IntermediateLeaderboard players={players} quiz={quiz} animate />;
+
+//             case GameState.FINISHED:
+//                 return (
+//                     <Button onClick={() => navigate(`/report/${quizId}`)}>
+//                         View Report
+//                     </Button>
+//                 );
+
+//             default:
+//                 return null;
+//         }
+//     };
 
     return (
         <div className="h-full flex flex-col items-center p-4">
