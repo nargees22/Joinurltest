@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 // import { db } from '../../firebase';
@@ -674,7 +673,8 @@ setIsCustomQuestionValid(false);
                 option_2: q.options?.[1] || null,
                 option_3: q.options?.[2] || null,
                 option_4: q.options?.[3] || null,
-                correct_answer_index: q.correctAnswerIndex ?? null
+                correct_answer_index: q.correctAnswerIndex ?? null,
+                key: q.id || `question-${index}` // Ensure unique key
             }));
 
             const { error: questionsError } = await supabase
@@ -749,6 +749,7 @@ setIsCustomQuestionValid(false);
     option_3: q.options?.[2] || null,
     option_4: q.options?.[3] || null,
     correct_answer_index: q.correctAnswerIndex ?? null,
+    key: q.id || `question-${index}` // Ensure unique key
   }));
 
   const { error: questionError } = await supabase
@@ -1481,7 +1482,7 @@ setTechnologies(prev => {
                         <h2 className="text-xl font-bold mb-3 text-slate-800">Your Questions ({questions.length}/10)</h2>
                         <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
                             {questions.map((q, i) => (
-                                <div key={q.id} className="bg-slate-100 p-2 rounded-md flex justify-between items-center gap-2">
+                                <div key={q.id || `question-${i}`} className="bg-slate-100 p-2 rounded-md flex justify-between items-center gap-2">
                                     <p className="flex-grow text-slate-700 truncate">{i + 1}. {q.text}</p>
                                     <div className="flex-shrink-0 flex items-center gap-2">
                                         <div className="flex flex-col">
@@ -1559,8 +1560,8 @@ setTechnologies(prev => {
                                             {filteredDrafts.length === 0 ? (
                                                 <p className="text-center text-slate-500 p-4">{draftsSearchTerm ? 'No drafts match your search.' : "You have no saved drafts."}</p>
                                             ) : (
-                                                filteredDrafts.map(q => (
-                                                    <div key={q.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-50 p-3 rounded-lg gap-2">
+                                                filteredDrafts.map((q, index) => (
+                                                    <div key={q.id || `quiz-${index}`} className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-50 p-3 rounded-lg gap-2">
                                                         <div>
                                                             <p className="font-semibold text-slate-700">{q.title}</p>
                                                             <p className="text-sm text-slate-500">{q.questions.length} Questions</p>
@@ -1601,8 +1602,8 @@ const isExpanded = expandedPastQuizGroup === groupKey;
                                                             </button>
                                                             {isExpanded && (
                                                                 <div id={`past-quiz-group-${title.replace(/\s+/g, '-')}`} className="mt-4 pt-4 border-t border-slate-200 space-y-3 animate-fade-in">
-                                                                    {quizzes.map(q => (
-                                                                        <div key={q.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-50 p-3 rounded-lg gap-2">
+                                                                    {quizzes.map((q, index) => (
+                                                                        <div key={q.id || `quiz-${index}`} className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-50 p-3 rounded-lg gap-2">
                                                                             <div>
                                                                                 <p className="font-semibold text-slate-700 flex items-center gap-2"><CalendarIcon />{q.startTime?.toDate ? q.startTime.toDate().toLocaleString() : 'Date not available'}</p>
                                                                                 <div className="mt-2 flex items-baseline gap-x-4 gap-y-1 flex-wrap">
@@ -1666,8 +1667,8 @@ const isExpanded = expandedPastQuizGroup === groupKey;
                                                     </button>
                                                     {isExpanded && (
                                                         <div id={`report-group-${title.replace(/\s+/g, '-')}`} className="mt-4 pt-4 border-t border-slate-200 space-y-3 animate-fade-in">
-                                                            {quizzes.map(q => (
-                                                                <div key={q.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-50 p-3 rounded-lg gap-2">
+                                                            {quizzes.map((q, index) => (
+                                                                <div key={q.id || `quiz-${index}`} className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-50 p-3 rounded-lg gap-2">
                                                                     <div>
                                                                         <p className="font-semibold text-slate-700 flex items-center gap-2">
                                                                             <CalendarIcon />
@@ -1751,10 +1752,10 @@ const isExpanded = expandedPastQuizGroup === groupKey;
                             {isLoadingLibrary ? <div className="flex justify-center p-8"><LoadingSpinner /></div> : (
                                 <div className="space-y-3 max-h-[40vh] overflow-y-auto pr-2">
                                     {filteredQuestions.length === 0 && <p className="text-center text-slate-500 p-4">No questions found. Try adding some or adjusting your search/filters.</p>}
-                                    {filteredQuestions.map(q => {
+                                    {filteredQuestions.map((q, index) => {
                                         const isSelected = questions.find(sq => sq.id === q.id);
                                         return (
-                                            <div key={q.id} className={`p-3 rounded-lg border ${isSelected ? 'bg-gl-orange-50 border-gl-orange-300' : 'bg-white border-slate-200'}`}>
+                                            <div key={q.id || `question-${index}`} className={`p-3 rounded-lg border ${isSelected ? 'bg-gl-orange-50 border-gl-orange-300' : 'bg-white border-slate-200'}`}>
                                                 <p className={`font-semibold ${isSelected ? 'text-gl-orange-800' : 'text-slate-800'}`}>{q.text}</p>
                                                 <div className="flex justify-between items-center mt-2">
                                                     <div className="flex gap-2 text-xs">
