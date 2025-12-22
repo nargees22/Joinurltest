@@ -676,19 +676,27 @@ setIsCustomQuestionValid(false);
             // 2. Insert into quiz_questions using individual columns
             // Fix: Change q.time_limit to q.timeLimit to match Question interface definition.
             const questionRows = questions.map((q, index) => ({
-                quiz_id: quizId,
-                question_order: index + 1,
-                question_text: q.text,
-                type: q.type,
-                time_limit: q.timeLimit ?? 30,
-                technology: q.technology ?? null,
-                skill: q.skill ?? null,
-                option_1: q.options?.[0] || null,
-                option_2: q.options?.[1] || null,
-                option_3: q.options?.[2] || null,
-                option_4: q.options?.[3] || null,
-                correct_answer_index: q.correctAnswerIndex ?? null
-            }));
+  quiz_id: quizId,
+  question_order: index + 1,
+  question_text: q.text,
+
+  // ✅ force safe values
+  type: q.type ?? QuestionType.MCQ,
+  time_limit: q.timeLimit ?? 30,
+  technology: q.technology?.trim() || 'General',
+  skill: q.skill?.trim() || 'General',
+
+  option_1: q.options?.[0] ?? null,
+  option_2: q.options?.[1] ?? null,
+  option_3: q.options?.[2] ?? null,
+  option_4: q.options?.[3] ?? null,
+
+  correct_answer_index:
+    q.type === QuestionType.MCQ
+      ? q.correctAnswerIndex ?? 0
+      : null,
+}));
+
 
             const { error: questionsError } = await supabase
                 .from('quiz_questions')
@@ -750,19 +758,26 @@ setIsCustomQuestionValid(false);
 
   // 2️⃣ Insert questions into quiz_questions using individual columns
   const questionRows = questions.map((q, index) => ({
-    quiz_id: quizId,
-    question_order: index + 1,
-    question_text: q.text,
-    type: q.type,
-    time_limit: q.timeLimit ?? 30,
-    technology: q.technology ?? null,
-    skill: q.skill ?? null,
-    option_1: q.options?.[0] || null,
-    option_2: q.options?.[1] || null,
-    option_3: q.options?.[2] || null,
-    option_4: q.options?.[3] || null,
-    correct_answer_index: q.correctAnswerIndex ?? null,
-  }));
+  quiz_id: quizId,
+  question_order: index + 1,
+  question_text: q.text,
+
+  // ✅ force safe values
+  type: q.type ?? QuestionType.MCQ,
+  time_limit: q.timeLimit ?? 30,
+  technology: q.technology?.trim() || 'General',
+  skill: q.skill?.trim() || 'General',
+
+  option_1: q.options?.[0] ?? null,
+  option_2: q.options?.[1] ?? null,
+  option_3: q.options?.[2] ?? null,
+  option_4: q.options?.[3] ?? null,
+
+  correct_answer_index:
+    q.type === QuestionType.MCQ
+      ? q.correctAnswerIndex ?? 0
+      : null,
+}));
 
   const { error: questionError } = await supabase
     .from('quiz_questions')
