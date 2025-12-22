@@ -11,7 +11,8 @@ import { CopyIcon } from '../icons/CopyIcon';
 import { supabase } from '../service/supabase.ts';
 
 const LobbyPage = () => {
-    //const { quizId } = useParams<{ quizId: string }>();
+    //const { quizId } = usePara
+    // ms<{ quizId: string }>();
     const { quizId } = useParams<{ quizId: string }>();
 
 if (!quizId || quizId.length !== 6) {
