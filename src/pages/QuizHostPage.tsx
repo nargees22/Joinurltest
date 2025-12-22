@@ -376,9 +376,16 @@ const QuizHostPage = () => {
   const [currentQuestionAnswers, setCurrentQuestionAnswers] = useState<any[]>([]);
 
   /* -------------------- SAFETY -------------------- */
-  if (!quizId) {
-    return <PageLoader message="Invalid quiz id" />;
-  }
+//   if (!quizId) {
+//     return <PageLoader message="Invalid quiz id" />;
+//   }
+if (!quizId) {
+  return (
+    <div className="h-screen flex items-center justify-center">
+      <PageLoader message="Invalid quiz id" />
+    </div>
+  );
+}
 
   /* -------------------- FETCH DATA -------------------- */
   const fetchData = async () => {
