@@ -89,6 +89,13 @@ console.log('PlayerLobby render', { quizId, playerId });
     };
   }, [quizId, playerId, navigate]);
 
+  // Redirect players to QuizPlayerPage.tsx when the game state changes
+  useEffect(() => {
+    if (quiz?.gameState === GameState.QUESTION_INTRO) {
+      navigate(`/quiz/player/${quizId}`);
+    }
+  }, [quiz?.gameState, quizId, navigate]);
+
   // 🔁 Realtime players
   useEffect(() => {
     if (!quizId) return;

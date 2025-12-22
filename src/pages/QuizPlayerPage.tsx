@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../service/supabase.ts';
@@ -27,8 +26,6 @@ const QuizPlayerPage = () => {
     const [lastScore, setLastScore] = useState(0);
     const [hasActuallyAnswered, setHasActuallyAnswered] = useState(false);
     const [isAnswerLocked, setIsAnswerLocked] = useState(false);
-
-    const question = quiz?.questions[quiz.currentQuestionIndex];
 
     const fetchPlayers = async () => {
         if (!quizId) return;
@@ -111,6 +108,21 @@ const QuizPlayerPage = () => {
         }
     }, [quiz?.gameState]);
 
+    // Add guards for missing data and improve realtime updates
+
+    // -----------------------------
+    // GUARDS (CRITICAL)
+    // -----------------------------
+    if (!quiz || !player) return <PageLoader message="Connecting to quiz..." />;
+
+    const question = quiz.questions?.[quiz.currentQuestionIndex];
+    if (!question && quiz.gameState !== GameState.LEADERBOARD) {
+        return <PageLoader message="Preparing question..." />;
+    }
+
+    // -----------------------------
+    // ENHANCE submitAnswer LOGIC
+    // -----------------------------
     const submitAnswer = useCallback(async (answerPayload: any) => {
         if (isAnswerLocked || hasActuallyAnswered || !localQuestionStartTimeRef.current || !quizId || !playerId || !question) return;
 
@@ -151,36 +163,64 @@ const QuizPlayerPage = () => {
         }
     }, [isAnswerLocked, hasActuallyAnswered, quizId, playerId, question]);
 
-    if (!quiz || !player || !question) return <PageLoader message="Connecting to quiz..." />;
-    
+    // -----------------------------
+    // IMPROVE renderContent LOGIC
+    // -----------------------------
     const renderContent = () => {
-        if (quiz.gameState === GameState.CLAN_BATTLE_VS) return <ClanBattleVsAnimation quiz={quiz} />;
-        if (quiz.gameState === GameState.CLAN_BATTLE_INTRO) return <ClanBattleIntro quiz={quiz} players={allPlayers} playerId={playerId} />;
-        if (quiz.gameState === GameState.LEADERBOARD) return <div className="p-8"><IntermediateLeaderboard players={allPlayers} quiz={quiz} highlightPlayerId={playerId} animate={true} strategicTip={strategicTip} /></div>;
-        
-        if (quiz.gameState === GameState.QUESTION_RESULT || hasActuallyAnswered) {
-             return (
-                <PlayerQuestionResult
-                    question={question}
-                    isCorrect={lastScore > 0}
-                    correctMatchesCount={0}
-                    currentResultMessage={currentResultMessage}
-                    lifelineEarned={null}
-                    setLifelineEarned={() => {}}
-                />
-             );
-        }
+        switch (quiz.gameState) {
+            case GameState.CLAN_BATTLE_VS:
+                return <ClanBattleVsAnimation quiz={quiz} />;
 
-        return (
-            <PlayerQuestionActive
-                quiz={quiz} player={player} question={question} allPlayers={allPlayers}
-                submitAnswer={submitAnswer} lifelineUsedThisTurn={null}
-                eliminatedOptions={[]} handleLifelineClick={() => {}}
-                isUsingLifeline={false} canUseFiftyFifty={false} canUsePointDoubler={false}
-                fiftyFiftyCost={0} confirmingLifeline={null} setConfirmingLifeline={() => {}}
-                handleUseLifeline={() => {}}
-            />
-        );
+            case GameState.CLAN_BATTLE_INTRO:
+                return <ClanBattleIntro quiz={quiz} players={allPlayers} playerId={playerId} />;
+
+            case GameState.LEADERBOARD:
+                return (
+                    <div className="p-8">
+                        <IntermediateLeaderboard
+                            players={allPlayers}
+                            quiz={quiz}
+                            highlightPlayerId={playerId}
+                            animate={true}
+                            strategicTip={strategicTip}
+                        />
+                    </div>
+                );
+
+            case GameState.QUESTION_RESULT:
+            case hasActuallyAnswered:
+                return (
+                    <PlayerQuestionResult
+                        question={question}
+                        isCorrect={lastScore > 0}
+                        correctMatchesCount={0}
+                        currentResultMessage={currentResultMessage}
+                        lifelineEarned={null}
+                        setLifelineEarned={() => {}}
+                    />
+                );
+
+            default:
+                return (
+                    <PlayerQuestionActive
+                        quiz={quiz}
+                        player={player}
+                        question={question}
+                        allPlayers={allPlayers}
+                        submitAnswer={submitAnswer}
+                        lifelineUsedThisTurn={null}
+                        eliminatedOptions={[]}
+                        handleLifelineClick={() => {}}
+                        isUsingLifeline={false}
+                        canUseFiftyFifty={false}
+                        canUsePointDoubler={false}
+                        fiftyFiftyCost={0}
+                        confirmingLifeline={null}
+                        setConfirmingLifeline={() => {}}
+                        handleUseLifeline={() => {}}
+                    />
+                );
+        }
     };
 
     return <div className={`flex-grow flex flex-col bg-slate-50`}>{renderContent()}</div>;
