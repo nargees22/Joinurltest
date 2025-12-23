@@ -80,6 +80,32 @@ const QuizHostPage = () => {
     };
   }, [quizId]);
 
+  // ---------------- LISTEN TO PLAYER ANSWERS ----------------
+useEffect(() => {
+  if (!quizId) return;
+
+  const channel = supabase
+    .channel(`answers-${quizId}`)
+    .on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'quiz_answers',
+        filter: `quiz_id=eq.${quizId}`,
+      },
+      payload => {
+        setAnswers(prev => [...prev, payload.new]);
+      }
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}, [quizId]);
+
+
   // ---------------- CURRENT QUESTION ----------------
   const question =
     quiz &&
@@ -128,12 +154,60 @@ const QuizHostPage = () => {
     <div className="p-6 flex flex-col items-center">
       <h1 className="text-3xl font-bold mb-6">{quiz.title}</h1>
 
-      {quiz.gameState === GameState.QUESTION_INTRO && question && (
+      {/* {quiz.gameState === GameState.QUESTION_INTRO && question && (
         <>
           <TimerCircle duration={question.timeLimit} start />
           <h2 className="text-xl mt-6">{question.text}</h2>
         </>
-      )}
+      )} */}
+
+
+
+      {quiz.gameState === GameState.QUESTION_INTRO && question && (
+  <div className="w-full max-w-3xl">
+    <h2 className="text-xl font-bold mb-6 text-center">
+      {question.text}
+    </h2>
+
+    {/* OPTIONS (read-only for host) */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {question.options.map((opt: string, index: number) => (
+        <div
+          key={index}
+          className="p-4 bg-slate-200 rounded-lg text-center font-semibold"
+        >
+          {opt}
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+{quiz.gameState === GameState.QUESTION_ACTIVE && question && (
+  <div className="w-full max-w-3xl">
+    <h2 className="text-xl font-bold mb-6 text-center">
+      {question.text}
+    </h2>
+
+    {/* OPTIONS (read-only for host) */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {question.options.map((opt: string, index: number) => (
+        <div
+          key={index}
+          className="p-4 bg-slate-300 rounded-lg text-center font-semibold"
+        >
+          {opt}
+        </div>
+      ))}
+    </div>
+
+    {/* TIMER */}
+    <div className="mt-6 flex justify-center">
+      <TimerCircle duration={question.timeLimit} start />
+    </div>
+  </div>
+)}
+
+
 
       {quiz.gameState === GameState.QUESTION_RESULT && question && (
         <SurveyResultsChart options={question.options} answerCounts={answerCounts} />
@@ -144,9 +218,21 @@ const QuizHostPage = () => {
       )}
 
       <div className="mt-8 flex gap-4">
-        {quiz.gameState === GameState.LOBBY && (
+        {/* {quiz.gameState === GameState.LOBBY && (
           <Button onClick={() => updateGameState(GameState.QUESTION_INTRO)}>Start Quiz</Button>
-        )}
+        )} */}
+        {quiz.gameState === GameState.QUESTION_INTRO && (
+  <Button
+    onClick={() => updateGameState(GameState.QUESTION_ACTIVE)}
+  >
+    Start Question (Show to Players)
+  </Button>
+)}
+{quiz.gameState === GameState.QUESTION_ACTIVE && (
+  <Button onClick={() => updateGameState(GameState.QUESTION_RESULT)}>
+    Stop & Show Results
+  </Button>
+)}
 
         {quiz.gameState === GameState.QUESTION_RESULT && (
           <Button onClick={() => updateGameState(GameState.LEADERBOARD)}>Leaderboard</Button>
