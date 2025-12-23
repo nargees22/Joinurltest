@@ -179,9 +179,13 @@ const QuizHostPage = () => {
   // DEBUGGING: TIMER AND GAME STATE
   // --------------------------------------------------
   useEffect(() => {
-    console.log('Current gameState:', quiz?.gameState);
-    console.log('Current question index:', quiz?.currentIndex);
-    console.log('Current question time limit:', question?.timeLimit);
+    if (quiz) {
+      console.log('Current gameState:', quiz.gameState);
+      console.log('Current question index:', quiz.currentIndex);
+      console.log('Current question time limit:', question?.timeLimit);
+    } else {
+      console.log('Quiz object is null or undefined.');
+    }
   }, [quiz, question]);
 
   // --------------------------------------------------
