@@ -213,6 +213,35 @@ const QuizHostPage = () => {
   };
 
   // --------------------------------------------------
+  // RESULTS DISPLAY FUNCTIONALITY
+  // --------------------------------------------------
+  const ResultsDisplay = () => {
+    if (quiz && quiz.gameState === GameState.QUESTION_RESULT && question) {
+      return (
+        <div className="w-full max-w-3xl mb-8">
+          <h2 className="text-xl font-bold mb-6 text-center">
+            Results for: {question.text}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {question.options.map((opt, index) => (
+              <div
+                key={index}
+                className="p-4 bg-slate-200 rounded-lg text-center font-semibold"
+              >
+                {opt}
+                <div className="text-sm text-gray-600">
+                  {answerCounts[index]} responses
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // --------------------------------------------------
   // STYLED BUTTON: SHOW RESULTS
   // --------------------------------------------------
   const StyledButton = ({ onClick, children, isActive }: any) => {
@@ -266,15 +295,7 @@ const QuizHostPage = () => {
 
       {/* RESULTS */}
       {quiz.gameState === GameState.QUESTION_RESULT && question && (
-        <div className="w-full max-w-3xl mb-8">
-          <h2 className="text-xl font-bold mb-6 text-center">
-            Results for: {question.text}
-          </h2>
-          <SurveyResultsChart
-            options={question.options}
-            answerCounts={answerCounts}
-          />
-        </div>
+        <ResultsDisplay />
       )}
 
       {/* LEADERBOARD */}
