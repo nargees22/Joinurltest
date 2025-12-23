@@ -158,10 +158,6 @@ const QuizHostPage = () => {
   const updateGameState = async (next: GameState) => {
     if (!quizId || !quiz) return;
 
-    console.log('Updating game state to:', next);
-    console.log('Current quiz state:', quiz.gameState);
-    console.log('Current question index:', quiz.currentIndex);
-
     setAnswers([]);
 
     await supabase
