@@ -185,6 +185,16 @@ const QuizHostPage = () => {
   }, [quiz, question]);
 
   // --------------------------------------------------
+  // DEBUGGING: ANSWERS AND RESULTS
+  // --------------------------------------------------
+  useEffect(() => {
+    if (quiz.gameState === GameState.QUESTION_RESULT) {
+      console.log('Answers for current question:', answers);
+      console.log('Answer counts:', answerCounts);
+    }
+  }, [quiz.gameState, answers, answerCounts]);
+
+  // --------------------------------------------------
   // TIMER FUNCTIONALITY
   // --------------------------------------------------
   const TimerCircleWrapper = () => {
@@ -245,17 +255,22 @@ const QuizHostPage = () => {
             ))}
           </div>
 
-          {/* TIMER */}
+          TIMER
           <TimerCircleWrapper />
         </div>
       )}
 
       {/* RESULTS */}
       {quiz.gameState === GameState.QUESTION_RESULT && question && (
-        <SurveyResultsChart
-          options={question.options}
-          answerCounts={answerCounts}
-        />
+        <div className="w-full max-w-3xl mb-8">
+          <h2 className="text-xl font-bold mb-6 text-center">
+            Results for: {question.text}
+          </h2>
+          <SurveyResultsChart
+            options={question.options}
+            answerCounts={answerCounts}
+          />
+        </div>
       )}
 
       {/* LEADERBOARD */}
@@ -289,6 +304,22 @@ const QuizHostPage = () => {
             isActive={true}
           >
             Show Leaderboard
+          </StyledButton>
+        )}
+
+        {/* ADDITIONAL BUTTON: NEXT QUESTION */}
+        {quiz.gameState === GameState.LEADERBOARD && (
+          <StyledButton
+            onClick={() => {
+              if (quiz.currentIndex + 1 < quiz.questions.length) {
+                updateGameState(GameState.QUESTION_INTRO);
+              } else {
+                alert('Quiz completed!');
+              }
+            }}
+            isActive={true}
+          >
+            Next Question
           </StyledButton>
         )}
       </div>
