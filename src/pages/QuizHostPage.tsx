@@ -192,17 +192,17 @@ const QuizHostPage = () => {
   // DEBUGGING: ANSWERS AND RESULTS
   // --------------------------------------------------
   useEffect(() => {
-    if (quiz.gameState === GameState.QUESTION_RESULT) {
+    if (quiz && quiz.gameState === GameState.QUESTION_RESULT) {
       console.log('Answers for current question:', answers);
       console.log('Answer counts:', answerCounts);
     }
-  }, [quiz.gameState, answers, answerCounts]);
+  }, [quiz, answers, answerCounts]);
 
   // --------------------------------------------------
   // TIMER FUNCTIONALITY
   // --------------------------------------------------
   const TimerCircleWrapper = () => {
-    if (quiz.gameState === GameState.QUESTION_ACTIVE && question) {
+    if (quiz && quiz.gameState === GameState.QUESTION_ACTIVE && question) {
       return (
         <div className="mt-6 flex justify-center">
           <TimerCircle duration={question.timeLimit} start />
