@@ -7,6 +7,8 @@ import { SurveyResultsChart } from '../components/SurveyResultsChart';
 import { IntermediateLeaderboard } from '../components/IntermediateLeaderboard';
 import Button from '../components/Button';
 import { GameState, QuestionType } from '../../types';
+const [timerCompleted, setTimerCompleted] = useState(false);
+
 
 const QuizHostPage = () => {
   const { quizId } = useParams<{ quizId: string }>();
@@ -19,6 +21,11 @@ const QuizHostPage = () => {
   if (quiz?.currentIndex !== undefined) {
     setAnswers([]);
   }
+}, [quiz?.currentIndex]);
+
+
+useEffect(() => {
+  setTimerCompleted(false);
 }, [quiz?.currentIndex]);
 
   // --------------------------------------------------
@@ -225,13 +232,21 @@ const QuizHostPage = () => {
   // TIMER FUNCTIONALITY
   // --------------------------------------------------
   const TimerCircleWrapper = () => {
-  if (quiz && quiz.gameState === GameState.QUESTION_ACTIVE && question) {
+  if (
+    quiz &&
+    quiz.gameState === GameState.QUESTION_ACTIVE &&
+    question &&
+    !timerCompleted
+  ) {
     return (
       <div className="mt-6 flex justify-center">
         <TimerCircle
           duration={question.timeLimit}
           start
-          onComplete={() => updateGameState(GameState.QUESTION_RESULT)}
+          onComplete={() => {
+            setTimerCompleted(true);
+            updateGameState(GameState.QUESTION_RESULT);
+          }}
         />
       </div>
     );
@@ -341,13 +356,18 @@ const QuizHostPage = () => {
         )}
 
         {quiz.gameState === GameState.QUESTION_ACTIVE && (
-          <StyledButton
-            onClick={() => updateGameState(GameState.QUESTION_RESULT)}
-            isActive={true}
-          >
-            Show Results
-          </StyledButton>
-        )}
+  <StyledButton
+    onClick={() => {
+      if (!timerCompleted) {
+        setTimerCompleted(true);
+      }
+      updateGameState(GameState.QUESTION_RESULT);
+    }}
+    isActive
+  >
+    Show Results
+  </StyledButton>
+)}
 
         {quiz.gameState === GameState.QUESTION_RESULT && (
           <StyledButton
