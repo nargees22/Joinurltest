@@ -179,24 +179,23 @@ const QuizHostPage = () => {
   // GAME STATE UPDATES
   // --------------------------------------------------
   const updateGameState = async (next: GameState) => {
-    if (!quizId || !quiz) return;
+  if (!quizId || !quiz) return;
 
-    setAnswers([]);
+  // 🔥 IMMEDIATE local update (IMPORTANT)
+  setQuiz((prev: any) => ({
+    ...prev,
+    gameState: next,
+  }));
 
-    await supabase
-      .from('quiz_master_structure')
-      .update({
-        game_state: next,
-        show_question_to_players:
-          next === GameState.QUESTION_ACTIVE,
-        current_question_index:
-          next === GameState.QUESTION_INTRO &&
-          quiz.gameState === GameState.LEADERBOARD
-            ? quiz.currentIndex + 1
-            : quiz.currentIndex,
-      })
-      .eq('quiz_id', quizId);
-  };
+  await supabase
+    .from('quiz_master_structure')
+    .update({
+      game_state: next,
+      show_question_to_players: next === GameState.QUESTION_ACTIVE,
+    })
+    .eq('quiz_id', quizId);
+};
+
 
   // --------------------------------------------------
   // DEBUGGING: TIMER AND GAME STATE
