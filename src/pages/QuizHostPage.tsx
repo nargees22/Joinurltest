@@ -15,6 +15,11 @@ const QuizHostPage = () => {
   const [players, setPlayers] = useState<any[]>([]);
   const [answers, setAnswers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  useEffect(() => {
+  if (quiz?.currentIndex !== undefined) {
+    setAnswers([]);
+  }
+}, [quiz?.currentIndex]);
 
   // --------------------------------------------------
   // LOAD QUIZ DATA
@@ -141,16 +146,32 @@ const QuizHostPage = () => {
   // --------------------------------------------------
   // ANSWER COUNTS
   // --------------------------------------------------
+  // const answerCounts = useMemo(() => {
+  //   if (!question) return [];
+  //   const counts = new Array(question.options.length).fill(0);
+  //   answers.forEach(a => {
+  //     if (typeof a.answer === 'number') {
+  //       counts[a.answer]++;
+  //     }
+  //   });
+  //   return counts;
+  // }, [answers, question]);
   const answerCounts = useMemo(() => {
-    if (!question) return [];
-    const counts = new Array(question.options.length).fill(0);
-    answers.forEach(a => {
+  if (!question || !quiz) return [];
+
+  const counts = new Array(question.options.length).fill(0);
+
+  answers
+    .filter(a => a.question_id === quiz.questions[quiz.currentIndex]?.id)
+    .forEach(a => {
       if (typeof a.answer === 'number') {
         counts[a.answer]++;
       }
     });
-    return counts;
-  }, [answers, question]);
+
+  return counts;
+}, [answers, question, quiz]);
+
 
   // --------------------------------------------------
   // GAME STATE UPDATES
@@ -202,16 +223,19 @@ const QuizHostPage = () => {
   // TIMER FUNCTIONALITY
   // --------------------------------------------------
   const TimerCircleWrapper = () => {
-    if (quiz && quiz.gameState === GameState.QUESTION_ACTIVE && question) {
-      return (
-        <div className="mt-6 flex justify-center">
-          <TimerCircle duration={question.timeLimit} start />
-        </div>
-      );
-    }
-    return null;
-  };
-
+  if (quiz && quiz.gameState === GameState.QUESTION_ACTIVE && question) {
+    return (
+      <div className="mt-6 flex justify-center">
+        <TimerCircle
+          duration={question.timeLimit}
+          start
+          onComplete={() => updateGameState(GameState.QUESTION_RESULT)}
+        />
+      </div>
+    );
+  }
+  return null;
+};
   // --------------------------------------------------
   // RESULTS DISPLAY FUNCTIONALITY
   // --------------------------------------------------
