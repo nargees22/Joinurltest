@@ -208,19 +208,17 @@ const QuizHostPage = () => {
             />
           </div>
 
-         {quiz.gameState === GameState.QUESTION_ACTIVE && (
-  <div className="mt-6">
-    <Button
-      onClick={() => updateGameState(GameState.QUESTION_RESULT)}
-      disabled={false}
+          <div className="mt-6">
+            <Button onClick={() => updateGameState(GameState.QUESTION_RESULT)}
+               disabled={false}
       className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg font-bold shadow-lg"
     >
       Show Results
-    </Button>
-  </div>
-)}
-
-      
+              
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* RESULTS */}
       {quiz.gameState === GameState.QUESTION_RESULT && question && (
