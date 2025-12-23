@@ -280,25 +280,50 @@ const QuizPlayerPage = () => {
   const fetchData = async () => {
     if (!quizId) return;
 
-    const { data: quizData } = await supabase
+  //   const { data: quizData } = await supabase
+  //     .from('quiz_master_structure')
+  //     .select('*')
+  //     .eq('quiz_id', quizId)
+  //     .single();
+
+  //   const { data: questionData } = await supabase
+  //     .from('quiz_questions')
+  //     .select('*')
+  //     .eq('quiz_id', quizId)
+  //     .order('question_order');
+
+  //   if (quizData) setQuiz(quizData);
+  //   if (questionData) setQuestions(questionData);
+
+  //   setLoading(false);
+  // };
+const fetchData = async () => {
+  if (!quizId) return;
+
+  setLoading(true);
+
+  const [{ data: quizData }, { data: questionData }] = await Promise.all([
+    supabase
       .from('quiz_master_structure')
       .select('*')
       .eq('quiz_id', quizId)
-      .single();
+      .single(),
 
-    const { data: questionData } = await supabase
+    supabase
       .from('quiz_questions')
       .select('*')
       .eq('quiz_id', quizId)
-      .order('question_order');
+      .order('question_order'),
+  ]);
 
-    if (quizData) setQuiz(quizData);
-    if (questionData) setQuestions(questionData);
+  if (quizData) setQuiz(quizData);
+  if (questionData) setQuestions(questionData);
 
-    setLoading(false);
-  };
+  setLoading(false);
+};
 
   // -----------------------------
+  
   // REALTIME LISTENERS
   // -----------------------------
   useEffect(() => {
@@ -314,7 +339,10 @@ const QuizPlayerPage = () => {
           table: 'quiz_master_structure',
           filter: `quiz_id=eq.${quizId}`,
         },
-        () => fetchData()
+        () => {
+    console.log('🔄 Quiz state changed');
+    fetchData();
+  }
       )
       .subscribe();
 
