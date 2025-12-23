@@ -16,30 +16,33 @@ const QuizHostPage = () => {
   const [answers, setAnswers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  /* ===============================
-     LOAD QUIZ DATA
-     =============================== */
+  // --------------------------------------------------
+  // LOAD QUIZ DATA
+  // --------------------------------------------------
   const loadQuiz = async () => {
     if (!quizId) return;
 
     setLoading(true);
 
-    const { data: quizRow } = await supabase
-      .from('quiz_master_structure')
-      .select('*')
-      .eq('quiz_id', quizId)
-      .single();
+    const [{ data: quizRow }, { data: questionRows }, { data: playerRows }] =
+      await Promise.all([
+        supabase
+          .from('quiz_master_structure')
+          .select('*')
+          .eq('quiz_id', quizId)
+          .single(),
 
-    const { data: questionRows } = await supabase
-      .from('quiz_questions')
-      .select('*')
-      .eq('quiz_id', quizId)
-      .order('question_order');
+        supabase
+          .from('quiz_questions')
+          .select('*')
+          .eq('quiz_id', quizId)
+          .order('question_order'),
 
-    const { data: playerRows } = await supabase
-      .from('quiz_players')
-      .select('*')
-      .eq('quiz_id', quizId);
+        supabase
+          .from('quiz_players')
+          .select('*')
+          .eq('quiz_id', quizId),
+      ]);
 
     if (!quizRow || !questionRows) {
       setLoading(false);
@@ -49,8 +52,9 @@ const QuizHostPage = () => {
     setQuiz({
       id: quizRow.quiz_id,
       title: quizRow.title,
-      gameState: quizRow.game_state as GameState,
+      gameState: quizRow.game_state,
       currentIndex: quizRow.current_question_index ?? 0,
+      showQuestionToPlayers: quizRow.show_question_to_players,
       questions: questionRows.map((q: any) => ({
         text: q.question_text,
         options: [
@@ -59,7 +63,8 @@ const QuizHostPage = () => {
           q.option_3,
           q.option_4,
         ].filter(Boolean),
-        timeLimit: q.time_limit ?? 30,
+        correctAnswerIndex: q.correct_answer_index,
+        timeLimit: q.time_limit ?? 30, // SECONDS
         type: q.type ?? QuestionType.MCQ,
       })),
     });
@@ -68,9 +73,9 @@ const QuizHostPage = () => {
     setLoading(false);
   };
 
-  /* ===============================
-     INITIAL LOAD + GAME STATE LISTENER
-     =============================== */
+  // --------------------------------------------------
+  // REALTIME: QUIZ STATE
+  // --------------------------------------------------
   useEffect(() => {
     if (!quizId) return;
 
@@ -95,9 +100,9 @@ const QuizHostPage = () => {
     };
   }, [quizId]);
 
-  /* ===============================
-     LISTEN TO PLAYER ANSWERS
-     =============================== */
+  // --------------------------------------------------
+  // REALTIME: PLAYER ANSWERS
+  // --------------------------------------------------
   useEffect(() => {
     if (!quizId) return;
 
@@ -122,9 +127,9 @@ const QuizHostPage = () => {
     };
   }, [quizId]);
 
-  /* ===============================
-     CURRENT QUESTION
-     =============================== */
+  // --------------------------------------------------
+  // CURRENT QUESTION
+  // --------------------------------------------------
   const question =
     quiz &&
     quiz.questions &&
@@ -133,9 +138,9 @@ const QuizHostPage = () => {
       ? quiz.questions[quiz.currentIndex]
       : null;
 
-  /* ===============================
-     ANSWER COUNTS (RESULT CHART)
-     =============================== */
+  // --------------------------------------------------
+  // ANSWER COUNTS
+  // --------------------------------------------------
   const answerCounts = useMemo(() => {
     if (!question) return [];
     const counts = new Array(question.options.length).fill(0);
@@ -147,19 +152,20 @@ const QuizHostPage = () => {
     return counts;
   }, [answers, question]);
 
-  /* ===============================
-     UPDATE GAME STATE
-     =============================== */
+  // --------------------------------------------------
+  // GAME STATE UPDATES
+  // --------------------------------------------------
   const updateGameState = async (next: GameState) => {
     if (!quizId || !quiz) return;
 
-    // reset answers when moving phase
     setAnswers([]);
 
     await supabase
       .from('quiz_master_structure')
       .update({
         game_state: next,
+        show_question_to_players:
+          next === GameState.QUESTION_ACTIVE,
         current_question_index:
           next === GameState.QUESTION_INTRO &&
           quiz.gameState === GameState.LEADERBOARD
@@ -167,25 +173,22 @@ const QuizHostPage = () => {
             : quiz.currentIndex,
       })
       .eq('quiz_id', quizId);
-      if (error) {
-  console.error('Error updating game state:', error);
-}
   };
 
-  /* ===============================
-     RENDER GUARDS
-     =============================== */
+  // --------------------------------------------------
+  // GUARDS
+  // --------------------------------------------------
   if (loading) return <PageLoader message="Loading host view..." />;
   if (!quizId || !quiz) return <PageLoader message="Invalid quiz" />;
 
-  /* ===============================
-     UI
-     =============================== */
+  // --------------------------------------------------
+  // UI
+  // --------------------------------------------------
   return (
     <div className="p-6 flex flex-col items-center">
       <h1 className="text-3xl font-bold mb-6">{quiz.title}</h1>
 
-      {/* QUESTION + OPTIONS (HOST ALWAYS SEES) */}
+      {/* QUESTION */}
       {question && (
         <div className="w-full max-w-3xl mb-8">
           <h2 className="text-xl font-bold mb-6 text-center">
@@ -232,18 +235,11 @@ const QuizHostPage = () => {
           </Button>
         )}
 
-        {/* {quiz.gameState === GameState.QUESTION_ACTIVE && (
-          <Button onClick={() => updateGameState(GameState.QUESTION_RESULT)}>
-            Stop & Show Results
-          </Button>
-        )} */}
         {quiz.gameState === GameState.QUESTION_ACTIVE && (
-  <Button
-    onClick={() => updateGameState(GameState.QUESTION_RESULT)}
-  >
-    Show Results
-  </Button>
-)}
+          <Button onClick={() => updateGameState(GameState.QUESTION_RESULT)}>
+            Show Results
+          </Button>
+        )}
 
         {quiz.gameState === GameState.QUESTION_RESULT && (
           <Button onClick={() => updateGameState(GameState.LEADERBOARD)}>
