@@ -344,41 +344,78 @@ const QuizPlayerPage = () => {
     return <PageLoader message="Waiting for host to start the quiz..." />;
   }
 
-  if (
-    quiz.game_state === GameState.QUESTION_ACTIVE &&
-    question
-  ) {
-    const options = [
-      question.option_1,
-      question.option_2,
-      question.option_3,
-      question.option_4,
-    ].filter(Boolean);
+//   if (
+//     quiz.game_state === GameState.QUESTION_ACTIVE &&
+//     question
+//   ) {
+//     const options = [
+//       question.option_1,
+//       question.option_2,
+//       question.option_3,
+//       question.option_4,
+//     ].filter(Boolean);
 
-    return (
-      <div className="p-6 max-w-3xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6 text-center">
-          {question.question_text}
-        </h1>
+//     return (
+//       <div className="p-6 max-w-3xl mx-auto">
+//         <h1 className="text-2xl font-bold mb-6 text-center">
+//           {question.question_text}
+//         </h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {options.map((opt, index) => (
-            <Button
-              key={index}
-              className={`p-4 ${
-                selectedAnswer === index
-                  ? 'bg-gl-orange-600'
-                  : 'bg-slate-200'
-              }`}
-              onClick={() => setSelectedAnswer(index)}
-            >
-              {opt}
-            </Button>
-          ))}
-        </div>
+//         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//           {options.map((opt, index) => (
+//             <Button
+//               key={index}
+//               className={`p-4 ${
+//                 selectedAnswer === index
+//                   ? 'bg-gl-orange-600'
+//                   : 'bg-slate-200'
+//               }`}
+//               onClick={() => setSelectedAnswer(index)}
+//             >
+//               {opt}
+//             </Button>
+//           ))}
+//         </div>
+//       </div>
+//     );
+//   }
+if (
+  (quiz.game_state === GameState.QUESTION_ACTIVE ||
+    quiz.game_state === GameState.QUESTION_INTRO) &&
+  question
+) {
+  const options = [
+    question.option_1,
+    question.option_2,
+    question.option_3,
+    question.option_4,
+  ].filter(Boolean);
+
+  return (
+    <div className="p-6 max-w-3xl mx-auto">
+      <h1 className="text-2xl font-bold mb-6 text-center">
+        {question.question_text}
+      </h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {options.map((opt, index) => (
+          <Button
+            key={index}
+            onClick={() => setSelectedAnswer(index)}
+            className={`p-4 ${
+              selectedAnswer === index
+                ? 'bg-gl-orange-600'
+                : 'bg-slate-200'
+            }`}
+          >
+            {opt}
+          </Button>
+        ))}
       </div>
-    );
-  }
+    </div>
+  );
+}
+
 
   if (quiz.game_state === GameState.QUESTION_RESULT) {
     return (

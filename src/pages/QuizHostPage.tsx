@@ -229,11 +229,18 @@ const QuizHostPage = () => {
           </Button>
         )}
 
-        {quiz.gameState === GameState.QUESTION_ACTIVE && (
+        {/* {quiz.gameState === GameState.QUESTION_ACTIVE && (
           <Button onClick={() => updateGameState(GameState.QUESTION_RESULT)}>
             Stop & Show Results
           </Button>
-        )}
+        )} */}
+        {quiz.gameState === GameState.QUESTION_ACTIVE && (
+  <Button
+    onClick={() => updateGameState(GameState.QUESTION_RESULT)}
+  >
+    Show Results
+  </Button>
+)}
 
         {quiz.gameState === GameState.QUESTION_RESULT && (
           <Button onClick={() => updateGameState(GameState.LEADERBOARD)}>
