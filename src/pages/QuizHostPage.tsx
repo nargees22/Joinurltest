@@ -176,13 +176,52 @@ const QuizHostPage = () => {
   };
 
   // --------------------------------------------------
+  // DEBUGGING: TIMER AND GAME STATE
+  // --------------------------------------------------
+  useEffect(() => {
+    console.log('Current gameState:', quiz?.gameState);
+    console.log('Current question index:', quiz?.currentIndex);
+    console.log('Current question time limit:', question?.timeLimit);
+  }, [quiz, question]);
+
+  // --------------------------------------------------
+  // TIMER FUNCTIONALITY
+  // --------------------------------------------------
+  const TimerCircleWrapper = () => {
+    if (quiz.gameState === GameState.QUESTION_ACTIVE && question) {
+      return (
+        <div className="mt-6 flex justify-center">
+          <TimerCircle duration={question.timeLimit} start />
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // --------------------------------------------------
+  // STYLED BUTTON: SHOW RESULTS
+  // --------------------------------------------------
+  const StyledButton = ({ onClick, children, isActive }: any) => {
+    return (
+      <Button
+        onClick={onClick}
+        className={`p-4 rounded-lg font-bold text-white w-full md:w-auto ${
+          isActive ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-400'
+        }`}
+      >
+        {children}
+      </Button>
+    );
+  };
+
+  // --------------------------------------------------
   // GUARDS
   // --------------------------------------------------
   if (loading) return <PageLoader message="Loading host view..." />;
   if (!quizId || !quiz) return <PageLoader message="Invalid quiz" />;
 
   // --------------------------------------------------
-  // UI
+  // UI: UPDATED CONTROLS
   // --------------------------------------------------
   return (
     <div className="p-6 flex flex-col items-center">
@@ -206,11 +245,8 @@ const QuizHostPage = () => {
             ))}
           </div>
 
-          {quiz.gameState === GameState.QUESTION_ACTIVE && (
-            <div className="mt-6 flex justify-center">
-              <TimerCircle duration={question.timeLimit} start />
-            </div>
-          )}
+          {/* TIMER */}
+          <TimerCircleWrapper />
         </div>
       )}
 
@@ -230,21 +266,30 @@ const QuizHostPage = () => {
       {/* CONTROLS */}
       <div className="mt-8 flex gap-4">
         {quiz.gameState === GameState.QUESTION_INTRO && (
-          <Button onClick={() => updateGameState(GameState.QUESTION_ACTIVE)}>
+          <StyledButton
+            onClick={() => updateGameState(GameState.QUESTION_ACTIVE)}
+            isActive={true}
+          >
             Start Question (Show to Players)
-          </Button>
+          </StyledButton>
         )}
 
         {quiz.gameState === GameState.QUESTION_ACTIVE && (
-          <Button onClick={() => updateGameState(GameState.QUESTION_RESULT)}>
+          <StyledButton
+            onClick={() => updateGameState(GameState.QUESTION_RESULT)}
+            isActive={true}
+          >
             Show Results
-          </Button>
+          </StyledButton>
         )}
 
         {quiz.gameState === GameState.QUESTION_RESULT && (
-          <Button onClick={() => updateGameState(GameState.LEADERBOARD)}>
+          <StyledButton
+            onClick={() => updateGameState(GameState.LEADERBOARD)}
+            isActive={true}
+          >
             Show Leaderboard
-          </Button>
+          </StyledButton>
         )}
       </div>
     </div>
