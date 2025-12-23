@@ -167,6 +167,9 @@ const QuizHostPage = () => {
             : quiz.currentIndex,
       })
       .eq('quiz_id', quizId);
+      if (error) {
+  console.error('Error updating game state:', error);
+}
   };
 
   /* ===============================
