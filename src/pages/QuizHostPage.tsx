@@ -7,10 +7,11 @@ import { SurveyResultsChart } from '../components/SurveyResultsChart';
 import { IntermediateLeaderboard } from '../components/IntermediateLeaderboard';
 import Button from '../components/Button';
 import { GameState, QuestionType } from '../../types';
-const [timerCompleted, setTimerCompleted] = useState(false);
+
 
 
 const QuizHostPage = () => {
+  const [timerCompleted, setTimerCompleted] = useState(false);
   const { quizId } = useParams<{ quizId: string }>();
 
   const [quiz, setQuiz] = useState<any>(null);
@@ -329,7 +330,7 @@ useEffect(() => {
             ))}
           </div>
 
-          TIMER
+        
           <TimerCircleWrapper />
         </div>
       )}
