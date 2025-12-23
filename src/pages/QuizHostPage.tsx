@@ -61,17 +61,19 @@ const QuizHostPage = () => {
       currentIndex: quizRow.current_question_index ?? 0,
       showQuestionToPlayers: quizRow.show_question_to_players,
       questions: questionRows.map((q: any) => ({
-        text: q.question_text,
-        options: [
-          q.option_1,
-          q.option_2,
-          q.option_3,
-          q.option_4,
-        ].filter(Boolean),
-        correctAnswerIndex: q.correct_answer_index,
-        timeLimit: q.time_limit ?? 30, // SECONDS
-        type: q.type ?? QuestionType.MCQ,
-      })),
+  id: q.pk_id,               // 🔥 REQUIRED
+  text: q.question_text,
+  options: [
+    q.option_1,
+    q.option_2,
+    q.option_3,
+    q.option_4,
+  ].filter(Boolean),
+  correctAnswerIndex: q.correct_answer_index,
+  timeLimit: q.time_limit ?? 30,
+  type: q.type ?? QuestionType.MCQ,
+})),
+
     });
 
     setPlayers(playerRows ?? []);
